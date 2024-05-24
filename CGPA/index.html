@@ -5,29 +5,164 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CGPA Calculator</title>
   <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
+  <style>
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .gauge {
+      width: 100%;
+      max-width: 250px;
+      font-family: "Roboto", sans-serif;
+      font-size: 24px;
+      color: #004033;
+      text-align: center;
+      margin-top: 2rem;
+      position: relative; /* Added */
+    }
+
+    .gauge__body {
+      width: 100%;
+      height: 0;
+      padding-bottom: 50%;
+      background: #b4c0be;
+      position: relative;
+      border-top-left-radius: 100% 200%;
+      border-top-right-radius: 100% 200%;
+      overflow: hidden;
+    }
+
+    .gauge__fill {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: inherit;
+      height: 100%;
+      background: #009578;
+      transform-origin: center top;
+      transform: rotate(0.25turn);
+      transition: transform 0.2s ease-out;
+    }
+
+    .gauge__cover {
+      width: 75%;
+      height: 150%;
+      background: #ffffff;
+      border-radius: 50%;
+      position: absolute;
+      top: 25%;
+      left: 50%;
+      transform: translateX(-50%);
+
+      /* Text */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-bottom: 25%;
+      box-sizing: border-box;
+    }
+  </style>
 </head>
 <body>
-  <h1>Calculate Your CGPA</h1>
-  <div id="semesters">
-    <label for="semester">Number of Semesters:</label>
-    <select name="semester" id="semester">
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
-      <option value="5">5</option>
-      <option value="6">6</option>
-      <option value="7">7</option>
-      <option value="8">8</option>
-    </select>
-    <button id="submit">Submit</button>
+  <div class="container">
+    <h1>Calculate Your CGPA</h1>
+    <div id="semesters">
+      <label for="semester">Number of Semesters:</label>
+      <select name="semester" id="semester">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+      </select>
+      <button id="submit">Submit</button>
+    </div>
+    <div id="details"></div>
+    <div id="result"></div>
+    <div class="gauge">
+      <div class="gauge__body">
+        <div class="gauge__fill"></div>
+        <div class="gauge__cover">0</div>
+      </div>
+    </div>
   </div>
-  <div id="details">
+  <script src="script.js" defer></script>
+  <script>
+    const submit = document.querySelector('#submit');
+    const gaugeElement = document.querySelector(".gauge");
+    submit.setAttribute('class', 'submit-class');
+    var num = 1;
+    const button = document.createElement('button');
+    button.setAttribute('class', 'submit-class');
+    button.innerText = "Calculate";
+    button.setAttribute('id', 'btn');
 
-  </div>
-  <div id="result">
+    let arr = [];
 
-  </div> 
+    submit.addEventListener('click', () => {
+      num = semester.value;
+      addFields(num);
+    })
+
+    function addFields(num) {
+      const len = num
+      for (let i = 0; i < num; i++) {
+        const newDiv = document.createElement('div');
+        newDiv.innerHTML = '<input class="sgpa" type="number" placeholder="SGPA"> <input class="credits" type="number" min="1" placeholder="Credits">'
+        newDiv.classList.add('semester');
+        document.querySelector('#details').append(newDiv);
+      }
+      document.querySelector('#details').append(button);
+      document.querySelector('#details').style.display = 'block';
+    }
+
+    button.addEventListener('click', () => {
+      const credits = document.querySelectorAll('.credits');
+      const sgpa = document.querySelectorAll('.sgpa');
+      // Check if any field is left empty
+      for (let i = 0; i < num; i++) {
+        if (credits[i].value === "" || sgpa[i].value === "") {
+          alert("Please fill in all the fields.");
+          return; // Stop execution if any field is empty
+        }
+      }
+      for (let i = 0; i < num; i++) {
+        arr.push([parseFloat(sgpa[i].value), parseInt(credits[i].value)]);
+      }
+      findCGPA();
+    })
+
+    function findCGPA() {
+      var totalCredits = 0;
+      var totalPoints = 0;
+      for (let i = 0; i < num; i++) {
+        totalCredits += arr[i][1];
+        totalPoints += arr[i][0] * arr[i][1];
+      }
+      var cgpa = totalPoints / totalCredits;
+      const result = document.querySelector('#result');
+      result.innerHTML = "Your CGPA is: " + cgpa.toFixed(2);
+      result.style.display = 'block';
+      setGaugeValue(gaugeElement, cgpa / 10); // Convert CGPA to a value between 0 and 1
+    }
+
+    function setGaugeValue(gauge, value) {
+      if (value < 0 || value > 1) {
+        return;
+      }
+
+      gauge.querySelector(".gauge__fill").style.transform = `rotate(${
+        value * 0.5
+      }turn)`;
+      gauge.querySelector(".gauge__cover").textContent = `${(value * 10).toFixed(2)}`;
+    }
+  </script>
 </body>
 </html>
