@@ -11,7 +11,6 @@ let arr = [];
 submit.addEventListener('click',()=>{
   num = semester.value;
   addFields(num);
-
 })
 
 function addFields(num){
@@ -24,12 +23,18 @@ function addFields(num){
   }
   document.querySelector('#details').append(button);
   document.querySelector('#details').style.display = 'block';
-
 }
 
 button.addEventListener('click',()=>{
   const credits = document.querySelectorAll('.credits');
   const sgpa = document.querySelectorAll('.sgpa');
+  // Check if any field is left empty
+  for(let i=0; i<num; i++){
+    if(credits[i].value === "" || sgpa[i].value === ""){
+      alert("Please fill in all the fields.");
+      return; // Stop execution if any field is empty
+    }
+  }
   for(let i=0;i<num;i++){
     arr.push([parseFloat(sgpa[i].value), parseInt(credits[i].value)]);
   }
